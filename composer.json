@@ -1,0 +1,14 @@
+{
+    "name": "akibjorklund/phpcompatapi",
+    "description": "PHP Compatibility tester",
+    "require": {
+        "bartlett/php-compatinfo": "^4.2"
+    },
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Aki Bjoorklund",
+            "email": "aki@h1.fi"
+        }
+    ]
+}
