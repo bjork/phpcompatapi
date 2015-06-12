@@ -1,131 +1,209 @@
 <?php
 
-use Bartlett\Reflect\Client;
-
-require_once '../vendor/autoload.php';
-
-if ( version_compare ( phpversion(), '5.4', '<') ) {
+if ( version_compare ( phpversion(), '5.4.0', '<') ) {
 	header( 'HTTP/1.0 500 Internal Server Error' );
-	exit( 'Unsupported PHP version. 5.4 or above required.' );
+	exit( 'Unsupported PHP version. 5.4.0 or above required.' );
 }
 
-$php_version_to_test_against = '5.4';
+$php_version_to_test_against = '5.4.0';
 
-// get the path
-$path = $_SERVER['REQUEST_URI'];
+wct_run( $php_version_to_test_against );
 
-// remove leading '/'
-$path = ltrim( $path, '/' );
+function wct_run( $php_version_to_test_against ) {
 
-// make sure path starts with api/v1
-$the_rest = wct_validate_base_request( $path );
-
-// make sure the request is otherwice ok
-wct_validate_test_request( $the_rest );
-
-// get the file from request
-$file_to_analyze = wct_get_test_file_request();
-
-// write file to archive with a temporary name
-$zip = new \ZipArchive();
-$dir = dirname( dirname( __FILE__ ) ) . '/temp/';
-$temp_name = $dir . uniqid( 'wct', true ) . '.zip';
-if ( true !== $zip->open( $temp_name, \ZipArchive::CREATE ) ) {
-	wct_error( 'Insufficient permissions', 500 );
-}
-$zip->addFromString( 'test.php', $file_to_analyze );
-$zip->close();
-
-// creates an instance of client
-$client = new Client();
-
-// request for a Bartlett\Reflect\Api\Analyser
-$api = $client->api( 'analyser' );
-
-// perform request, on a data source with default analyser
-$analysers  = array( 'compatibility' );
-
-// run the actual analyzer
-$metrics = $api->run( $temp_name, $analysers );
-
-// delete archive immediately
-// todo make sure we delete the file even if something above fails
-unlink( $temp_name );
-
-$passes_requirements = true;
-
-$analyzer_full_name = 'Bartlett\CompatInfo\Analyser\CompatibilityAnalyser';
-
-if ( isset( $metrics[ $analyzer_full_name ],
-	$metrics[ $analyzer_full_name ]['versions'],
-	$metrics[ $analyzer_full_name ]['versions']['php.min'] ) ) {
-	$min_php = $metrics[ $analyzer_full_name ]['versions']['php.min'];
-	$passes_requirements = version_compare( $php_version_to_test_against, $min_php, '>=' );
-	// todo it seems in some cases php.min under versions is not the max of all min php versions
-	// instead, we should loop through all the data in extensions, functions and constants at least
-	// to find max php version
-} else {
-	wct_error( 'Unable to determine compatibility', 500 );
-}
-
-$php_lib_results_data = $metrics[ $analyzer_full_name ];
-
-$results = (object) array(
-	'result' => $passes_requirements,
-	'data'   => $php_lib_results_data,
-);
-
-// finally return results
-wct_response( $results );
-
-function wct_validate_base_request( $path ) {
-
-	$parts = explode( '/', $path );
-
-	// there should be more than 1 parts and the first one should be "api"
-	if ( count( $parts ) <= 1 || 'api' !== $parts[ 0 ] ) {
+	// Validate the overall request to this API
+	$resource = wct_validate_request( $_SERVER['REQUEST_URI'] );
+	if ( false === $resource ) {
 		wct_error( 'Invalid request' );
 	}
 
-	// the second part should be "v1"
-	if ( 'v1' !== $parts[ 1 ] ) {
-		wct_error( 'Invalid version' );
-	}
-
-	// remove the first 2 parts from the parts array
-	array_splice( $parts, 0, 2 );
-
-	// return everything after the tested part
-	return implode( '/', $parts );
-
-}
-
-function wct_validate_test_request( $path ) {
-	$parts = explode('/', $path );
-	$base_resource = $parts[0];
-
-	if ( 'test' !== $base_resource ) {
+	// Validate the request to this specific compatibility test resource
+	if ( 'test' !== substr( $resource, 0, 4 ) ) {
 		wct_error( 'Unsupported API resource' );
 	}
 
-	if ( ! isset( $_SERVER['CONTENT_TYPE'] ) || 'application/json' !== $_SERVER['CONTENT_TYPE'] ) {
+	// Validate content type
+	if ( ! isset( $_SERVER['CONTENT_TYPE'] )
+		|| 'application/json' !== $_SERVER['CONTENT_TYPE'] ) {
 		wct_error( 'Invalid Content-Type' );
 	}
 
-	if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+	// Validate HTTP method
+	if ( ! isset( $_SERVER['REQUEST_METHOD'] )
+		|| 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 		wct_error( 'Invalid HTTP method', 405 );
 	}
+
+	// Get file from the request
+	$file = wct_get_test_file_from_request( file_get_contents( "php://input" ) );
+	if ( false === $file ) {
+		wct_error( 'Invalid data. We only accept JSON. Property file should exists.' );
+	}
+
+	// Parse and analyze file for metrics
+	$metrics = wct_get_metrics( $file );
+	if ( false === $metrics ) {
+		wct_error( 'Unable to parse the file.', 500 );
+	}
+
+	// Get info on possible non-conforming issues
+	$non_passing_info = wct_get_issues( $metrics, $php_version_to_test_against );
+	if ( false === $non_passing_info ) {
+		wct_error( 'Unable to determine compatibility.', 500 );
+	}
+
+	wct_respond_with_results( $non_passing_info );
+
 }
 
-function wct_get_test_file_request() {
-	$request_data = json_decode( file_get_contents( "php://input" ) );
+/**
+ * Use PHP_CompatInfo to get metrics of code
+ * @param string $file_to_analyze PHP file contents as a string
+ * @return bool|array False on error, result array otherwise.
+ */
+function wct_get_metrics( $file_to_analyze ) {
+	require_once '../vendor/autoload.php';
+
+	// write file to a temp folder with a temporary name
+	$temp_name = tempnam( sys_get_temp_dir(), 'wct' );
+	file_put_contents( $temp_name, $file_to_analyze );
+
+	try {
+
+		// creates an instance of client
+		$client = new Bartlett\Reflect\Client();
+
+		// request for a Bartlett\Reflect\Api\Analyser
+		$api = $client->api( 'analyser' );
+
+		// perform request, on a data source with default analyser
+		$analysers  = array( 'compatibility' );
+
+		// run the analyzer
+		/** @noinspection PhpUndefinedMethodInspection */
+		$metrics = $api->run( $temp_name, $analysers );
+
+	} catch ( Exception $e ) {
+
+		// make sure the temp file gets deleted always
+		unlink( $temp_name );
+		return false;
+
+	}
+
+	// delete temp file immediately
+	unlink( $temp_name );
+
+	return $metrics;
+}
+
+/**
+ * Test if PHP CompatInfo metrics match required PHP version
+ * @param array $metrics PHP CompatInfo metrics
+ * @param string $php_version_to_test_against PHP version string the code needs to match.
+ * @return bool|array Filtered results that only contain issues. False on failure. Empty return array is a pass.
+ */
+function wct_get_issues( $metrics, $php_version_to_test_against ) {
+	$analyzer_full_name = 'Bartlett\CompatInfo\Analyser\CompatibilityAnalyser';
+
+	if ( ! isset( $metrics[ $analyzer_full_name ],
+		$metrics[ $analyzer_full_name ]['versions'] ) ) {
+		return false;
+	}
+
+	$versions = $metrics[ $analyzer_full_name ]['versions'];
+	$passes_requirements = wct_passes( $versions, $php_version_to_test_against );
+
+	$info = wct_get_info_for_non_passing_properties(
+		$metrics[ $analyzer_full_name ],
+		$php_version_to_test_against
+	);
+
+	if ( $passes_requirements && count( $info ) > 0 ) {
+		// A conflict was found in the metrics.
+		return false;
+	}
+
+	return $info;
+}
+
+/**
+ * Filtered results to only contain issues.
+ * @param array $metrics PHP CompatInfo metrics
+ * @param string $php_version_to_test_against PHP version string the code needs to match.
+ * @return array Filtered results that only contain issues.
+ */
+function wct_get_info_for_non_passing_properties( $metrics, $php_version_to_test_against ) {
+	$info = array();
+
+	foreach ( $metrics as $metric => $properties ) {
+		// Skip versions and empty properties
+		if ( 'versions' === $metric
+			|| ! is_array( $properties )
+			|| 0 === count( $properties ) ) {
+			continue;
+		}
+
+		// Gather property data that does not meet the requirements
+		foreach ( $properties as $property_name => $property_data ) {
+			if ( ! wct_passes( $property_data, $php_version_to_test_against ) ) {
+				if ( ! isset( $info[ $metric ] ) ) {
+					$info[ $metric ] = array();
+				}
+				$info[ $metric ][ $property_name ] = $property_data;
+			}
+		}
+	}
+
+	return $info;
+}
+
+/**
+ * Test if a property of PHP CompatInfo results array matches required PHP version
+ * @param array $property PHP CompatInfo property
+ * @param string $php_version_to_test_against PHP version string the code needs to match.
+ * @return bool If the property matches the PHP version.
+ */
+function wct_passes( $property, $php_version_to_test_against ) {
+	if ( ! is_array( $property ) ) {
+		return true;
+	}
+
+	$passes_requirements = true;
+
+	if ( isset( $property['php.min'] ) && $property['php.min'] ) {
+		$min_php = $property['php.min'];
+		$passes_requirements = version_compare( $php_version_to_test_against, $min_php, '>=' );
+	}
+
+	if ( $passes_requirements && isset( $property['php.max'] ) && $property['php.max'] ) {
+		$max_php = $property['php.max'];
+		$passes_requirements = version_compare( $php_version_to_test_against, $max_php, '<=' );
+	}
+
+	return $passes_requirements;
+}
+
+function wct_validate_request( $path ) {
+
+	$prefix = '/api/v1/';
+
+	if ( $prefix !== substr( $path, 0, strlen( $prefix ) ) ) {
+		return false;
+	}
+
+	return substr( $path, 8 );
+}
+
+function wct_get_test_file_from_request( $input ) {
+	$request_data = json_decode( $input );
 
 	if ( ! is_object( $request_data ) ) {
-		wct_error( 'Invalid data. We only accept JSON.' );
+		return false;
 	}
 
 	if ( ! property_exists( $request_data, 'file' ) ) {
-		wct_error( 'Missing file' );
+		return false;
 	}
 
 	$file_to_analyze = base64_decode( $request_data->file );
@@ -133,10 +211,21 @@ function wct_get_test_file_request() {
 	return $file_to_analyze;
 }
 
+function wct_respond_with_results( $non_passing_info ) {
+	$results = (object) array( 'passes' => true );
+
+	if ( count( $non_passing_info ) > 0 ) {
+		$results->passes = false;
+		$results->info = $non_passing_info;
+	}
+
+	// deliver results
+	wct_response( $results );
+}
+
 function wct_error( $message, $status_code = 400 ) {
 
 	$response = (object) array(
-		'result' => false,
 		'error' => $message
 	);
 
