@@ -150,12 +150,30 @@ function wct_get_info_for_non_passing_properties( $metrics, $php_version_to_test
 				if ( ! isset( $info[ $metric ] ) ) {
 					$info[ $metric ] = array();
 				}
-				$info[ $metric ][ $property_name ] = $property_data;
+				$info[ $metric ][ $property_name ] = wct_array_with_only_php_min_max( $property_data );
 			}
 		}
 	}
 
 	return $info;
+}
+
+/**
+ * Pick only two out of PHP CompatInfo's numerous keys
+ * @param $array Array to filter
+ * @return array Array filtered
+ */
+function wct_array_with_only_php_min_max( $array ) {
+
+	$result = array( 'php.min' => null, 'php.max' => null );
+
+	foreach ( array_keys( $result ) as $key ) {
+		if ( isset( $array[ $key ] ) ) {
+			$result[ $key ] = $array[ $key ];
+		}
+	}
+
+	return $result;
 }
 
 /**
