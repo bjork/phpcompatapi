@@ -22,26 +22,24 @@ function wct_run( $php_version_to_test_against ) {
 		wct_error( 'Unsupported API resource' );
 	}
 
-	// Validate content type
-	if ( ! isset( $_SERVER['CONTENT_TYPE'] )
-		|| 'application/json' !== $_SERVER['CONTENT_TYPE'] ) {
-		wct_error( 'Invalid Content-Type' );
-	}
-
 	// Validate HTTP method
 	if ( ! isset( $_SERVER['REQUEST_METHOD'] )
 		|| 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
 		wct_error( 'Invalid HTTP method', 405 );
 	}
 
+	if ( ! isset( $_FILES['file'] ) ) {
+		wct_error( 'Invalid file upload.' );
+	}
+
 	// Get file from the request
-	$file = wct_get_test_file_from_request( file_get_contents( "php://input" ) );
-	if ( false === $file ) {
-		wct_error( 'Invalid data. We only accept JSON. Property file should exists.' );
+	$file_name = wct_get_test_file_from_request( $_FILES['file'] );
+	if ( false === $file_name ) {
+		wct_error( 'Invalid file upload.' );
 	}
 
 	// Parse and analyze file for metrics
-	$metrics = wct_get_metrics( $file );
+	$metrics = wct_get_metrics( $file_name );
 	if ( false === $metrics ) {
 		wct_error( 'Unable to parse the file.', 500 );
 	}
@@ -64,10 +62,6 @@ function wct_run( $php_version_to_test_against ) {
 function wct_get_metrics( $file_to_analyze ) {
 	require_once '../vendor/autoload.php';
 
-	// write file to a temp folder with a temporary name
-	$temp_name = tempnam( sys_get_temp_dir(), 'wct' );
-	file_put_contents( $temp_name, $file_to_analyze );
-
 	try {
 
 		// creates an instance of client
@@ -81,18 +75,18 @@ function wct_get_metrics( $file_to_analyze ) {
 
 		// run the analyzer
 		/** @noinspection PhpUndefinedMethodInspection */
-		$metrics = $api->run( $temp_name, $analysers );
+		$metrics = $api->run( $file_to_analyze, $analysers );
 
 	} catch ( Exception $e ) {
 
 		// make sure the temp file gets deleted always
-		unlink( $temp_name );
+		unlink( $file_to_analyze );
 		return false;
 
 	}
 
 	// delete temp file immediately
-	unlink( $temp_name );
+	unlink( $file_to_analyze );
 
 	return $metrics;
 }
@@ -213,20 +207,24 @@ function wct_validate_request( $path ) {
 	return substr( $path, 8 );
 }
 
-function wct_get_test_file_from_request( $input ) {
-	$request_data = json_decode( $input );
-
-	if ( ! is_object( $request_data ) ) {
+function wct_get_test_file_from_request( $file ) {
+	if ( ! is_array( $file )
+		|| ! isset( $file['error'] )
+		|| ! isset( $file['tmp_name'] )
+		|| is_array( $file['error'] )
+		|| UPLOAD_ERR_OK !== $file['error']
+		|| $file['size'] > 1048576 ) {
 		return false;
 	}
 
-	if ( ! property_exists( $request_data, 'file' ) ) {
+	$file_info = new finfo( FILEINFO_MIME_TYPE );
+	$mime_type = $file_info->file( $file['tmp_name'] );
+
+	if ( 'text/x-php' !== $mime_type ) {
 		return false;
 	}
 
-	$file_to_analyze = base64_decode( $request_data->file );
-
-	return $file_to_analyze;
+	return $file['tmp_name'];
 }
 
 function wct_respond_with_results( $non_passing_info ) {
