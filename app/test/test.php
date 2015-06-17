@@ -1,12 +1,5 @@
 <?php
 
-$test_data = file_get_contents( dirname( dirname( __FILE__ ) ) . '/index.php' );
-//$test_data = file_get_contents( __FILE__ );
-
-$payload = (object) array(
-	'file' => base64_encode( $test_data )
-);
-
 $url = 'http://phpcompatapi.dev/api/v1/test/';
 
 $ch = curl_init();
