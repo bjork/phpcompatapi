@@ -71,7 +71,7 @@ function wct_get_metrics( $file_to_analyze ) {
 		$api = $client->api( 'analyser' );
 
 		// perform request, on a data source with default analyser
-		$analysers  = array( 'compatibility' );
+		$analysers  = [ 'compatibility' ];
 
 		// run the analyzer
 		/** @noinspection PhpUndefinedMethodInspection */
@@ -128,7 +128,7 @@ function wct_get_issues( $metrics, $php_version_to_test_against ) {
  * @return array Filtered results that only contain issues.
  */
 function wct_get_info_for_non_passing_properties( $metrics, $php_version_to_test_against ) {
-	$info = array();
+	$info = [];
 
 	foreach ( $metrics as $metric => $properties ) {
 		// Skip versions and empty properties
@@ -142,7 +142,7 @@ function wct_get_info_for_non_passing_properties( $metrics, $php_version_to_test
 		foreach ( $properties as $property_name => $property_data ) {
 			if ( ! wct_passes( $property_data, $php_version_to_test_against ) ) {
 				if ( ! isset( $info[ $metric ] ) ) {
-					$info[ $metric ] = array();
+					$info[ $metric ] = [];
 				}
 				$info[ $metric ][ $property_name ] = wct_array_with_only_php_min_max( $property_data );
 			}
@@ -159,7 +159,7 @@ function wct_get_info_for_non_passing_properties( $metrics, $php_version_to_test
  */
 function wct_array_with_only_php_min_max( $array ) {
 
-	$result = array( 'php.min' => null, 'php.max' => null );
+	$result = [ 'php.min' => null, 'php.max' => null ];
 
 	foreach ( array_keys( $result ) as $key ) {
 		if ( isset( $array[ $key ] ) ) {
@@ -228,7 +228,7 @@ function wct_get_test_file_from_request( $file ) {
 }
 
 function wct_respond_with_results( $non_passing_info ) {
-	$results = (object) array( 'passes' => true );
+	$results = (object) [ 'passes' => true ];
 
 	if ( count( $non_passing_info ) > 0 ) {
 		$results->passes = false;
@@ -241,9 +241,7 @@ function wct_respond_with_results( $non_passing_info ) {
 
 function wct_error( $message, $status_code = 400 ) {
 
-	$response = (object) array(
-		'error' => $message
-	);
+	$response = (object) [ 'error' => $message ];
 
 	wct_response( $response, $status_code );
 
