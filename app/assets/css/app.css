@@ -1,0 +1,2 @@
+#compatibility-tester .passed{background: rgba(0, 128, 0, 0.5)}
+#compatibility-tester .failed{background: rgba(255, 0, 0, 0.5)}
