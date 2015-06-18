@@ -13,7 +13,7 @@
 			return (
 				React.createElement("div", {className: "uploader"}, 
 					React.createElement("form", {className: "uploaderForm", ref: "form", encType: "multipart/form-data"}, 
-						React.createElement("input", {type: "file", ref: "file", onChange: this.handleUpload})
+						React.createElement("input", {type: "file", accept: "text/php", ref: "file", onChange: this.handleUpload})
 					)
 				)
 			);
