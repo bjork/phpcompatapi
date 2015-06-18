@@ -44,10 +44,10 @@
 
 			return (
 				<div className="results">
-					<p>The validation of the file <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>.</p>
+					<p>The validation of the file <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>. {this.props.error}</p>
 
 					<div className="issues" style={{display: this.props.issues.length > 0 ? 'block' : 'none'}}>
-						<p>Issues found:</p>
+						<h2>Issues found</h2>
 						<ol>{issueNodes}</ol>
 					</div>
 				</div>
@@ -57,7 +57,7 @@
 
 	var CompatibilityTester = React.createClass({
 		getInitialState: function () {
-			return { valid: null, issues: [] };
+			return { valid: null, issues: [], error: null };
 		},
 
 		onReadyStateChangeHandler: function ( event ) {
@@ -80,7 +80,11 @@
 					issues = this.transformIssues( response.info );
 				}
 
-				this.setState({ valid: response.passes, issues: issues });
+				this.setState({ valid: response.passes, issues: issues, error: null });
+			} else if ( 4 === readyState && text ) {
+				// todo try catch for SyntaxError exception
+				var response = JSON.parse( text );
+				this.setState({ valid: false, error: response.error });
 			}
 		},
 
@@ -131,9 +135,9 @@
 		render: function() {
 			return (
 				<div className="tester">
-					<h1>Platform PHP Compatibility Tester</h1>
+					<h1>Platform PHP Compatibility&nbsp;Tester</h1>
 					<CompatibilityUploader onFileUpload={this.uploadFile} />
-					<CompatibilityResults valid={this.state.valid} issues={this.state.issues} />
+					<CompatibilityResults valid={this.state.valid} issues={this.state.issues} error={this.state.error} />
 				</div>
 			);
 		}
