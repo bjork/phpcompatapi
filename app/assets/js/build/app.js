@@ -124,7 +124,7 @@
 
 			var xhr = new XMLHttpRequest();
 			xhr.addEventListener( 'readystatechange', this.onReadyStateChangeHandler, false );
-			xhr.open( 'POST', 'http://phpcompatapi.dev/api/v1/test/', true );
+			xhr.open( 'POST', wct_api_root + 'api/v1/test/', true );
 			xhr.send( formData);
 		},
 

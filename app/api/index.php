@@ -5,14 +5,12 @@ if ( version_compare ( phpversion(), '5.4.0', '<') ) {
 	exit( 'Unsupported PHP version. 5.4.0 or above required.' );
 }
 
-$php_version_to_test_against = '5.4.0';
+wct_run( WCT_PHP_VERSION, WCT_ROOT_PATH );
 
-wct_run( $php_version_to_test_against );
-
-function wct_run( $php_version_to_test_against ) {
+function wct_run( $php_version_to_test_against, $root_path ) {
 
 	// Validate the overall request to this API
-	$resource = wct_validate_request( $_SERVER['REQUEST_URI'] );
+	$resource = wct_validate_request( $_SERVER['REQUEST_URI'], $root_path );
 	if ( false === $resource ) {
 		wct_error( 'Invalid request' );
 	}
@@ -196,9 +194,9 @@ function wct_passes( $property, $php_version_to_test_against ) {
 	return $passes_requirements;
 }
 
-function wct_validate_request( $path ) {
+function wct_validate_request( $path, $root_path ) {
 
-	$prefix = '/api/v1/';
+	$prefix = $root_path . 'api/v1/';
 
 	if ( $prefix !== substr( $path, 0, strlen( $prefix ) ) ) {
 		return false;
