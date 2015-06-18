@@ -13,7 +13,7 @@
 			return (
 				<div className="uploader">
 					<form className="uploaderForm" ref="form" encType="multipart/form-data">
-						<input type="file" ref="file" onChange={this.handleUpload}/>
+						<input type="file" accept="text/php" ref="file" onChange={this.handleUpload}/>
 					</form>
 				</div>
 			);
