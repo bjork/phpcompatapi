@@ -14,7 +14,7 @@ if ( ! defined('WCT_ROOT_PATH') || ! defined('WCT_PHP_VERSION') ) {
 
 // Make sure root path begins and ends with a slash
 if ( '/' !== substr( WCT_ROOT_PATH, 0, 1 )
-	|| '/' !== substr( WCT_ROOT_PATH, strlen( $root_path ) - 1 ) ) {
+	|| '/' !== substr( WCT_ROOT_PATH, strlen( WCT_ROOT_PATH ) - 1 ) ) {
 	die( 'Invalid configuration. WCT_ROOT_PATH should begin and end with /.' );
 }
 

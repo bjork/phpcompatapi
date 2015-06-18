@@ -81,7 +81,7 @@ class RequestHandler {
 			return false;
 		}
 
-		return substr( $path, 8 );
+		return substr( $path, strlen( $prefix ) );
 	}
 
 	/**
