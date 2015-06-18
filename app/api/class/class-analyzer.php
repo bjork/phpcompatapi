@@ -9,7 +9,7 @@ class Analyzer {
 	public $issues = [];
 
 	/**
-	 * Use PHP_CompatInfo to get metrics of code
+	 * Use PHP CompatInfo to get metrics of code.
 	 * @param string $file_to_analyze PHP file contents as a string
 	 * @return bool|array False on error, result array otherwise.
 	 */
@@ -28,7 +28,6 @@ class Analyzer {
 			$analysers  = [ 'compatibility' ];
 
 			// run the analyzer
-			/** @noinspection PhpUndefinedMethodInspection */
 			$this->metrics = $api->run( $file_to_analyze, $analysers );
 
 		} catch ( Exception $e ) {
@@ -40,7 +39,7 @@ class Analyzer {
 	}
 
 	/**
-	 * Test if PHP CompatInfo metrics match required PHP version
+	 * Test if PHP CompatInfo metrics match required PHP version.
 	 * @param array $metrics PHP CompatInfo metrics
 	 * @param string $php_version_to_test_against PHP version string the code needs to match.
 	 * @return bool|array Filtered results that only contain issues. False on failure. Empty return array is a pass.
