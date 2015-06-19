@@ -1,8 +1,8 @@
 <?php
 
 // Load configuration
-if ( file_exists( 'config.php' ) ) {
-	include_once( 'config.php' );
+if ( file_exists( '../config.php' ) ) {
+	include_once( '../config.php' );
 } else {
 	die( 'Missing config.php. See config-sample.php.' );
 }
