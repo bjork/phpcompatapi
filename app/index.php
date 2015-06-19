@@ -18,6 +18,10 @@ if ( '/' !== substr( WCT_ROOT_PATH, 0, 1 )
 	die( 'Invalid configuration. WCT_ROOT_PATH should begin and end with /.' );
 }
 
+if ( ! defined( 'WCT_TEMP_DIR' ) ) {
+	define( WCT_TEMP_DIR, sys_get_temp_dir() );
+}
+
 // Main controller: run the API or the JS UI.
 if ( '/api/' === substr( $_SERVER['REQUEST_URI'], 0, 5 ) ) {
 	include 'api/index.php';

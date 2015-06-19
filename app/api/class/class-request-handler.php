@@ -16,8 +16,9 @@ class RequestHandler {
 	 * The main function of the app. The only place where $_SERVER and $_FILES are read from. 
 	 * @param string $php_version_to_test_against The PHP version string to test against.
 	 * @param string $root_path Root path of the app, slash if installed on root.
+	 * @param string $temp_dir Directory to temporarily write uploded php files.
 	 */
-	public function run( $php_version_to_test_against, $root_path ) {
+	public function run( $php_version_to_test_against, $root_path, $temp_dir ) {
 
 		// Validate the overall request to this API
 		$resource = $this->validate_request( $_SERVER['REQUEST_URI'], $root_path );
@@ -46,11 +47,16 @@ class RequestHandler {
 			$this->responder->respond_error( 'Invalid file upload.' );
 		}
 
-		// Parse and analyze file for metrics
-		$result = $this->analyzer->try_get_metrics( $file_name );
+		// Move to temporary directory.
+		$temp_file_name = tempnam( $temp_dir, 'wct');
+		move_uploaded_file( $file_name, $temp_file_name );
 
-		// Make sure the temp file gets deleted immediately
+		// Parse and analyze file for metrics
+		$result = $this->analyzer->try_get_metrics( $temp_file_name );
+
+		// Make sure the temp files gets deleted immediately
 		unlink( $file_name );
+		unlink( $temp_file_name );
 		
 		if ( false === $result ) {
 			$this->responder->respond_error( 'Unable to parse the file.', 500 );

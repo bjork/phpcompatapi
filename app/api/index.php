@@ -18,4 +18,4 @@ require_once( 'class/class-request-handler.php' );
 
 // Bootstrap the app by instantiating the classes.
 $request_handler = new RequestHandler( new Responder, new Analyzer );
-$request_handler->run( WCT_PHP_VERSION, WCT_ROOT_PATH );
+$request_handler->run( WCT_PHP_VERSION, WCT_ROOT_PATH, WCT_TEMP_DIR );
