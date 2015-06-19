@@ -1,7 +1,13 @@
 /* global React */
 
 (function () {
+	/**
+	 * CompatibilityUploader encapsulates an <input type=file>.
+	 */
 	var CompatibilityUploader = React.createClass({
+		/**
+		 * Get file from input and pass it forward.
+		 */
 		handleUpload: function () {
 			var fileInput = this.refs.file.getDOMNode();
 			if ( fileInput.files.length > 0 ) {
@@ -20,6 +26,9 @@
 		}
 	});
 
+	/**
+	 * CompatibilityIssue is an li element.
+	 */
 	var CompatibilityIssue = React.createClass({
 		render: function () {
 			return (
@@ -35,6 +44,7 @@
 				return null;
 			}
 
+			// Create sub nodes for issues
 			var issueNodes = this.props.issues.map(function (issue) {
 				var id = issue.type + issue.name;
 				return (
@@ -55,24 +65,31 @@
 		}
 	});
 
+	/**
+	 * The main component.
+	 */
 	var CompatibilityTester = React.createClass({
 		getInitialState: function () {
 			return { valid: null, issues: [], error: null };
 		},
 
+		/**
+		 * Handles Ajax response.
+		 */
 		onReadyStateChangeHandler: function ( event ) {
 			var status, text, readyState;
+
 			try {
 				readyState = event.target.readyState;
-				text = event.target.responseText;
-				status = event.target.status;
-			}
-			catch(e) {
+				text       = event.target.responseText;
+				status     = event.target.status;
+			} catch( e ) {
 				return;
 			}
 
+			// Test if the request is finished (4) and succeeded.
 			if ( 4 === readyState && 200 === status && text ) {
-				// todo try catch for SyntaxError exception
+				// TODO try catch for SyntaxError exception
 				var response = JSON.parse( text );
 
 				var issues = [];
@@ -80,14 +97,22 @@
 					issues = this.transformIssues( response.info );
 				}
 
+				// Update state.
 				this.setState({ valid: response.passes, issues: issues, error: null });
+
+			// Test if the request is finished (4) but there was an error.
 			} else if ( 4 === readyState && text ) {
-				// todo try catch for SyntaxError exception
+				// TODO try catch for SyntaxError exception
 				var response = JSON.parse( text );
+
+				// Update state.
 				this.setState({ valid: false, error: response.error });
 			}
 		},
 
+		/**
+		 * Transforms issues from the API to a more human readable form.
+		 */
 		transformIssues: function ( info ) {
 			var issues = [];
 
@@ -122,6 +147,9 @@
 			return issues;
 		},
 
+		/**
+		 * Upload a file through XMLHttpRequest
+		 */
 		uploadFile: function ( file ) {
 			var formData = new FormData();
 			formData.append('file', file.file);
