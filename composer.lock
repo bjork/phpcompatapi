@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "dddefc3349851630e5f6335fa59207c9",
+    "hash": "916aafe3b61d390b2f7980bb8d1d55a9",
     "packages": [
         {
             "name": "bartlett/php-compatinfo",
-            "version": "4.2.0",
+            "version": "4.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/llaville/php-compat-info.git",
-                "reference": "4026f69cd3d5f03467a58386a4a00225e3dc2544"
+                "reference": "c4bfef85fe799d2079f98f7b3e46d021bc739069"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/llaville/php-compat-info/zipball/4026f69cd3d5f03467a58386a4a00225e3dc2544",
-                "reference": "4026f69cd3d5f03467a58386a4a00225e3dc2544",
+                "url": "https://api.github.com/repos/llaville/php-compat-info/zipball/c4bfef85fe799d2079f98f7b3e46d021bc739069",
+                "reference": "c4bfef85fe799d2079f98f7b3e46d021bc739069",
                 "shasum": ""
             },
             "require": {
@@ -79,20 +79,20 @@
                 "compatibility",
                 "version"
             ],
-            "time": "2015-05-19 06:35:53"
+            "time": "2015-06-16 08:56:41"
         },
         {
             "name": "bartlett/php-reflect",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/llaville/php-reflect.git",
-                "reference": "c5c669565030b1d051dfa75feb49783ac6b9dfa9"
+                "reference": "b07c6160c9a6dd6ecfeeb4e72527e15bbe8099cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/llaville/php-reflect/zipball/c5c669565030b1d051dfa75feb49783ac6b9dfa9",
-                "reference": "c5c669565030b1d051dfa75feb49783ac6b9dfa9",
+                "url": "https://api.github.com/repos/llaville/php-reflect/zipball/b07c6160c9a6dd6ecfeeb4e72527e15bbe8099cd",
+                "reference": "b07c6160c9a6dd6ecfeeb4e72527e15bbe8099cd",
                 "shasum": ""
             },
             "require": {
@@ -161,7 +161,7 @@
                 "reflection",
                 "reverse-engineer"
             ],
-            "time": "2015-05-11 10:55:49"
+            "time": "2015-06-18 11:30:46"
         },
         {
             "name": "doctrine/collections",
@@ -231,20 +231,20 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/justinrainbow/json-schema.git",
-                "reference": "2465fe486c864e30badaa4d005ebdf89dbc503f3"
+                "reference": "7dfe4f1db8a62be3dd35710efce663537d515653"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/justinrainbow/json-schema/zipball/2465fe486c864e30badaa4d005ebdf89dbc503f3",
-                "reference": "2465fe486c864e30badaa4d005ebdf89dbc503f3",
+                "url": "https://api.github.com/repos/justinrainbow/json-schema/zipball/7dfe4f1db8a62be3dd35710efce663537d515653",
+                "reference": "7dfe4f1db8a62be3dd35710efce663537d515653",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.3.2"
             },
             "require-dev": {
                 "json-schema/json-schema-test-suite": "1.1.0",
@@ -293,7 +293,7 @@
                 "json",
                 "schema"
             ],
-            "time": "2015-03-27 16:41:39"
+            "time": "2015-06-14 20:01:28"
         },
         {
             "name": "nikic/php-parser",
@@ -472,16 +472,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Console.git",
-                "reference": "7f0bec04961c61c961df0cb8c2ae88dbfd83f399"
+                "reference": "564398bc1f33faf92fc2ec86859983d30eb81806"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/7f0bec04961c61c961df0cb8c2ae88dbfd83f399",
-                "reference": "7f0bec04961c61c961df0cb8c2ae88dbfd83f399",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/564398bc1f33faf92fc2ec86859983d30eb81806",
+                "reference": "564398bc1f33faf92fc2ec86859983d30eb81806",
                 "shasum": ""
             },
             "require": {
@@ -525,20 +525,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-29 16:22:24"
+            "time": "2015-06-10 15:30:22"
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DependencyInjection.git",
-                "reference": "137bf489c5151c7eb1e4b7dd34a123f9a74b966d"
+                "reference": "1a409e52a38ec891de0a7a61a191d1c62080b69d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/137bf489c5151c7eb1e4b7dd34a123f9a74b966d",
-                "reference": "137bf489c5151c7eb1e4b7dd34a123f9a74b966d",
+                "url": "https://api.github.com/repos/symfony/DependencyInjection/zipball/1a409e52a38ec891de0a7a61a191d1c62080b69d",
+                "reference": "1a409e52a38ec891de0a7a61a191d1c62080b69d",
                 "shasum": ""
             },
             "require": {
@@ -585,20 +585,20 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-29 14:44:44"
+            "time": "2015-06-11 19:13:11"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "687039686d0e923429ba6e958d0baa920cd5d458"
+                "reference": "be3c5ff8d503c46768aeb78ce6333051aa6f26d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/687039686d0e923429ba6e958d0baa920cd5d458",
-                "reference": "687039686d0e923429ba6e958d0baa920cd5d458",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/be3c5ff8d503c46768aeb78ce6333051aa6f26d9",
+                "reference": "be3c5ff8d503c46768aeb78ce6333051aa6f26d9",
                 "shasum": ""
             },
             "require": {
@@ -643,20 +643,20 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-02 15:21:08"
+            "time": "2015-06-08 09:37:21"
         },
         {
             "name": "symfony/finder",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Finder.git",
-                "reference": "ccb8ed8339cf24824f2ef35dacec30d92ff44368"
+                "reference": "c13a40d638aeede1e8400f8c956c7f9246c05f75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Finder/zipball/ccb8ed8339cf24824f2ef35dacec30d92ff44368",
-                "reference": "ccb8ed8339cf24824f2ef35dacec30d92ff44368",
+                "url": "https://api.github.com/repos/symfony/Finder/zipball/c13a40d638aeede1e8400f8c956c7f9246c05f75",
+                "reference": "c13a40d638aeede1e8400f8c956c7f9246c05f75",
                 "shasum": ""
             },
             "require": {
@@ -692,20 +692,20 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-15 14:02:48"
+            "time": "2015-06-04 20:11:48"
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Stopwatch.git",
-                "reference": "7702945bceddc0e1f744519abb8a2baeb94bd5ce"
+                "reference": "c653f1985f6c2b7dbffd04d48b9c0a96aaef814b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Stopwatch/zipball/7702945bceddc0e1f744519abb8a2baeb94bd5ce",
-                "reference": "7702945bceddc0e1f744519abb8a2baeb94bd5ce",
+                "url": "https://api.github.com/repos/symfony/Stopwatch/zipball/c653f1985f6c2b7dbffd04d48b9c0a96aaef814b",
+                "reference": "c653f1985f6c2b7dbffd04d48b9c0a96aaef814b",
                 "shasum": ""
             },
             "require": {
@@ -741,7 +741,7 @@
             ],
             "description": "Symfony Stopwatch Component",
             "homepage": "https://symfony.com",
-            "time": "2015-05-02 15:21:08"
+            "time": "2015-06-04 20:11:48"
         }
     ],
     "packages-dev": [],
