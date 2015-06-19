@@ -120,11 +120,11 @@
 				for ( var property in info[ type ] ) {
 					var details = info[ type ][ property ];
 
-					// Make the type singular
+					// Make the type singular.
 					var type_singular = type.substr( 0, type.length - 1 );
-					if ( 'e' === type_singular.substr( type_singular.length - 1 ) ) {
-						// Handle 'es' plural in 'class'
-						type_singular = type_singular.substr( 0, type_singular.length - 1 );
+					// Handle a special case.
+					if ( 'classes' === type ) {
+						type_singular = 'class';
 					}
 
 					// Make it begin with capital first letter:
