@@ -13,5 +13,5 @@ body{background:#ecf3ec;}
 #compatibility-tester .phpVersion{white-space:nowrap;}
 
 @media (max-width: 550px) {
-#compatibility-tester h1 {font-size:36px}
+#compatibility-tester h1 {font-size:30px}
 }
