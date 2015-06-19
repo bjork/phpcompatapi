@@ -89,8 +89,13 @@
 
 			// Test if the request is finished (4) and succeeded.
 			if ( 4 === readyState && 200 === status && text ) {
-				// TODO try catch for SyntaxError exception
-				var response = JSON.parse( text );
+				var response = '';
+				try {
+					response = JSON.parse( text );
+				} catch ( err ) {
+					// The response was malformed. Create it manually.
+					response = { passes: false, info: [], error: text };
+				}
 
 				var issues = [];
 				if ( false === response.passes ) {
@@ -102,11 +107,14 @@
 
 			// Test if the request is finished (4) but there was an error.
 			} else if ( 4 === readyState && text ) {
-				// TODO try catch for SyntaxError exception
-				var response = JSON.parse( text );
-
+				try {
+					var response = JSON.parse( text );
+				} catch ( err ) {
+					// The response was malformed. Create it manually.
+					response = { passes: false, info: [], error: text };
+				}
 				// Update state.
-				this.setState({ valid: false, error: response.error });
+				this.setState({ valid: false, issues: response.info, error: response.error });
 			}
 		},
 
