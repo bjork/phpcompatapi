@@ -18,17 +18,23 @@ class Analyzer {
 
 		try {
 
-			// creates an instance of client
 			$client = new \Bartlett\Reflect\Client();
 
-			// request for a Bartlett\Reflect\Api\Analyser
+			// Request for a Bartlett\Reflect\Api\Analyser.
 			$api = $client->api( 'analyser' );
 
-			// perform request, on a data source with default analyser
-			$analysers  = [ 'compatibility' ];
+			// Perform request, on a data source with default analyser.
+			$analysers = [ 'compatibility' ];
 
-			// run the analyzer
-			$this->metrics = $api->run( $file_to_analyze, $analysers );
+			// Run the analyzer.
+			$metrics = $api->run( $file_to_analyze, $analysers );
+			// Analyzer returns an Exception if the temp directory
+			// contains resources the current user has no access to.
+			if ( is_a( $metrics, 'Exception' ) ) {
+				return false;
+			}
+
+			$this->metrics = $metrics;
 
 		} catch ( Exception $e ) {
 
@@ -55,17 +61,17 @@ class Analyzer {
 		$versions = $this->metrics[ $analyzer_full_name ]['versions'];
 		$passes_requirements = $this->passes( $versions, $php_version_to_test_against );
 
-		$info = $this->get_info_for_non_passing_properties(
+		$issues = $this->get_info_for_non_passing_properties(
 			$this->metrics[ $analyzer_full_name ],
 			$php_version_to_test_against
 		);
 
-		if ( $passes_requirements && count( $info ) > 0 ) {
+		if ( $passes_requirements && count( $issues ) > 0 ) {
 			// A conflict was found in the metrics.
 			return false;
 		}
 
-		$this->issues = $info;
+		$this->issues = $issues;
 
 		return true;
 	}
@@ -77,7 +83,7 @@ class Analyzer {
 	 * @return array Filtered results that only contain issues.
 	 */
 	function get_info_for_non_passing_properties( $metrics, $php_version_to_test_against ) {
-		$info = [];
+		$issues = [];
 
 		foreach ( $metrics as $metric => $properties ) {
 			// Skip versions and empty properties
@@ -90,15 +96,15 @@ class Analyzer {
 			// Gather property data that does not meet the requirements
 			foreach ( $properties as $property_name => $property_data ) {
 				if ( ! $this->passes( $property_data, $php_version_to_test_against ) ) {
-					if ( ! isset( $info[ $metric ] ) ) {
-						$info[ $metric ] = [];
+					if ( ! isset( $issues[ $metric ] ) ) {
+						$issues[ $metric ] = [];
 					}
-					$info[ $metric ][ $property_name ] = $this->array_with_only_php_min_max( $property_data );
+					$issues[ $metric ][ $property_name ] = $this->array_with_only_php_min_max( $property_data );
 				}
 			}
 		}
 
-		return $info;
+		return $issues;
 	}
 
 	/**
