@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Platform PHP Compatibility Tester</title>
+	<meta name=viewport content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="<?php echo WCT_ROOT_PATH ?>assets/css/app.css">
 </head>
 <body>
