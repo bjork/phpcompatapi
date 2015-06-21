@@ -7,7 +7,7 @@ class RequestHandler {
 	protected $responder;
 	protected $analyzer;
 
-	protected $php_version_to_test_against;
+	protected $php_version;
 	protected $root_path;
 	protected $temp_dir;
 	protected $max_upload_size;
@@ -25,7 +25,7 @@ class RequestHandler {
 	 */
 	protected function set_options( $options ) {
 		$defaults = [
-			'php_version_to_test_against' => '5.4.0',
+			'php_version' => '5.4.0',
 			'root_path' => '/',
 			'temp_dir' => sys_get_temp_dir(),
 			'max_upload_size' => 1048576,
@@ -86,7 +86,7 @@ class RequestHandler {
 		}
 
 		// Get info on possible non-conforming issues
-		$result = $this->analyzer->try_get_issues( $this->php_version_to_test_against );
+		$result = $this->analyzer->try_get_issues( $this->php_version );
 		if ( false === $result ) {
 			$this->responder->respond_error( 'Unable to determine compatibility.', 500 );
 		}
