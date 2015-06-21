@@ -114,7 +114,7 @@
 					response = { passes: false, info: [], error: text };
 				}
 				// Update state.
-				this.setState({ valid: false, issues: response.info, error: response.error });
+				this.setState({ valid: false, issues: [], error: response.error });
 			}
 		},
 
