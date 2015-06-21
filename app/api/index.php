@@ -16,6 +16,12 @@ require_once( 'class/class-responder.php' );
 require_once( 'class/class-analyzer.php' );
 require_once( 'class/class-request-handler.php' );
 
+$options = [
+	'php_version'     => WCT_PHP_VERSION,
+	'root_path'       => WCT_ROOT_PATH,
+	'temp_dir'        => WCT_TEMP_DIR,
+	'max_upload_size' => WCT_MAX_UPLOAD_SIZE
+];
 // Bootstrap the app by instantiating the classes.
-$request_handler = new RequestHandler( new Responder, new Analyzer );
-$request_handler->run( WCT_PHP_VERSION, WCT_ROOT_PATH, WCT_TEMP_DIR );
+$request_handler = new RequestHandler( new Responder, new Analyzer, $options );
+$request_handler->run();

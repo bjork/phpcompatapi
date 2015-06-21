@@ -7,21 +7,44 @@ class RequestHandler {
 	protected $responder;
 	protected $analyzer;
 
-	public function __construct( $responder, $analyzer ) {
+	protected $php_version_to_test_against;
+	protected $root_path;
+	protected $temp_dir;
+	protected $max_upload_size;
+
+	public function __construct( $responder, $analyzer, $options = [] ) {
 		$this->responder = $responder;
 		$this->analyzer  = $analyzer;
+
+		$this->set_options( $options );
+	}
+
+	/**
+	 * Set options of the API.
+	 * @param array The options.
+	 */
+	protected function set_options( $options ) {
+		$defaults = [
+			'php_version_to_test_against' => '5.4.0',
+			'root_path' => '/',
+			'temp_dir' => sys_get_temp_dir(),
+			'max_upload_size' => 1048576,
+		];
+
+		foreach ($defaults as $key => $value) {
+			if ( isset( $options[ $key ] ) ) {
+				$this->$key = $options[ $key ];
+			}
+		}
 	}
 
 	/**
 	 * The main function of the app. The only place where $_SERVER and $_FILES are read from. 
-	 * @param string $php_version_to_test_against The PHP version string to test against.
-	 * @param string $root_path Root path of the app, slash if installed on root.
-	 * @param string $temp_dir Directory to temporarily write uploded php files.
 	 */
-	public function run( $php_version_to_test_against, $root_path, $temp_dir ) {
+	public function run() {
 
 		// Validate the overall request to this API
-		$resource = $this->validate_request( $_SERVER['REQUEST_URI'], $root_path );
+		$resource = $this->validate_request( $_SERVER['REQUEST_URI'], $this->root_path );
 		if ( false === $resource ) {
 			$this->responder->respond_error( 'Invalid request' );
 		}
@@ -48,7 +71,7 @@ class RequestHandler {
 		}
 
 		// Move to temporary directory.
-		$temp_file_name = tempnam( $temp_dir, 'wct');
+		$temp_file_name = tempnam( $this->temp_dir, 'wct');
 		move_uploaded_file( $file_name, $temp_file_name );
 
 		// Parse and analyze file for metrics
@@ -63,7 +86,7 @@ class RequestHandler {
 		}
 
 		// Get info on possible non-conforming issues
-		$result = $this->analyzer->try_get_issues( $php_version_to_test_against );
+		$result = $this->analyzer->try_get_issues( $this->php_version_to_test_against );
 		if ( false === $result ) {
 			$this->responder->respond_error( 'Unable to determine compatibility.', 500 );
 		}
@@ -104,7 +127,7 @@ class RequestHandler {
 			|| ! isset( $file['tmp_name'] )
 			|| is_array( $file['error'] )
 			|| UPLOAD_ERR_OK !== $file['error']
-			|| $file['size'] > 1048576 ) {
+			|| $this->max_upload_size < $file['size'] ) {
 			return false;
 		}
 
