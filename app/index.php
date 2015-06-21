@@ -28,4 +28,7 @@ if ( WCT_ROOT_PATH . 'api/' === substr( $_SERVER['REQUEST_URI'], 0, strlen( WCT_
 	include 'api/index.php';
 } else if ( WCT_ROOT_PATH === $_SERVER['REQUEST_URI'] ) {
 	include 'app.php';
+} else {
+	header( 'HTTP/1.0 404 Not Found' );
+	exit( '404 Not Found' );
 }
