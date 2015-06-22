@@ -23,6 +23,11 @@ if ( ! defined( 'WCT_TEMP_DIR' ) ) {
 	define( WCT_TEMP_DIR, sys_get_temp_dir() );
 }
 
+// If not defined in configuration, define WCT_MAX_UPLOAD_SIZE with the default one megabyte.
+if ( ! defined( 'WCT_MAX_UPLOAD_SIZE' ) ) {
+	define( WCT_MAX_UPLOAD_SIZE, 1048576 );
+}
+
 // Main controller: run the API or the JS UI.
 if ( WCT_ROOT_PATH . 'api/' === substr( $_SERVER['REQUEST_URI'], 0, strlen( WCT_ROOT_PATH . 'api/' ) ) ) {
 	include 'api/index.php';
