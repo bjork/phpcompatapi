@@ -79,8 +79,7 @@ class RequestHandler {
 		// Parse and analyze file for metrics
 		$result = $this->analyzer->try_get_metrics( $temp_file_name );
 
-		// Make sure the temp files gets deleted immediately
-		unlink( $file_name );
+		// Make sure the temp file gets deleted immediately
 		unlink( $temp_file_name );
 		
 		if ( false === $result ) {
