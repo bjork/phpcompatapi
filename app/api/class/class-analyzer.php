@@ -4,9 +4,9 @@ namespace WCT;
 
 class Analyzer {
 
-	public $metrics = [];
+	public $metrics = array();
 
-	public $issues = [];
+	public $issues = array();
 
 	/**
 	 * Use PHP CompatInfo to get metrics of code.
@@ -24,7 +24,7 @@ class Analyzer {
 			$api = $client->api( 'analyser' );
 
 			// Perform request, on a data source with default analyser.
-			$analysers = [ 'compatibility' ];
+			$analysers = array( 'compatibility' );
 
 			// Run the analyzer.
 			$metrics = $api->run( $file_to_analyze, $analysers );
@@ -83,7 +83,7 @@ class Analyzer {
 	 * @return array Filtered results that only contain issues.
 	 */
 	function get_info_for_non_passing_properties( $metrics, $php_version_to_test_against ) {
-		$issues = [];
+		$issues = array();
 
 		foreach ( $metrics as $metric => $properties ) {
 			// Skip versions and empty properties
@@ -97,7 +97,7 @@ class Analyzer {
 			foreach ( $properties as $property_name => $property_data ) {
 				if ( ! $this->passes( $property_data, $php_version_to_test_against ) ) {
 					if ( ! isset( $issues[ $metric ] ) ) {
-						$issues[ $metric ] = [];
+						$issues[ $metric ] = array();
 					}
 					$issues[ $metric ][ $property_name ] = $this->array_with_only_php_min_max( $property_data );
 				}
@@ -114,7 +114,7 @@ class Analyzer {
 	 */
 	function array_with_only_php_min_max( $array ) {
 
-		$result = [ 'php_min' => null, 'php_max' => null ];
+		$result = array( 'php_min' => null, 'php_max' => null );
 
 		foreach ( array_keys( $result ) as $key ) {
 			if ( isset( $array[ str_replace( '_', '.', $key ) ] ) ) {

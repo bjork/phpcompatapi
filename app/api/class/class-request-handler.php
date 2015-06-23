@@ -12,7 +12,7 @@ class RequestHandler {
 	protected $temp_dir;
 	protected $max_upload_size;
 
-	public function __construct( $responder, $analyzer, $options = [] ) {
+	public function __construct( $responder, $analyzer, $options = array() ) {
 		$this->responder = $responder;
 		$this->analyzer  = $analyzer;
 
@@ -24,12 +24,12 @@ class RequestHandler {
 	 * @param array The options.
 	 */
 	protected function set_options( $options ) {
-		$defaults = [
+		$defaults = array(
 			'php_version' => '5.4.0',
 			'root_path' => '/',
 			'temp_dir' => sys_get_temp_dir(),
 			'max_upload_size' => 1048576,
-		];
+		);
 
 		foreach ($defaults as $key => $value) {
 			if ( isset( $options[ $key ] ) && ! empty( $options[ $key ] ) ) {
