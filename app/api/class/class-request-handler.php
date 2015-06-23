@@ -31,10 +31,12 @@ class RequestHandler {
 			'max_upload_size' => 1048576,
 		];
 
-		if ( isset( $options[ $key ] ) && ! empty( $options[ $key ] ) ) {
-			$this->$key = $options[ $key ];
-		} else {
-			$this->$key = $value;
+		foreach ($defaults as $key => $value) {
+			if ( isset( $options[ $key ] ) && ! empty( $options[ $key ] ) ) {
+				$this->$key = $options[ $key ];
+			} else {
+				$this->$key = $value;
+			}
 		}
 	}
 
