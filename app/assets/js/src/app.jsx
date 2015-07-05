@@ -130,7 +130,7 @@
 	 */
 	var CompatibilityTester = React.createClass({
 		getInitialState: function () {
-			return { valid: null, fileIssues: [], error: null };
+			return { valid: null, fileIssues: [], error: null, loading: false };
 		},
 
 		/**
@@ -163,7 +163,7 @@
 				}
 
 				// Update state.
-				this.setState({ valid: response.passes, fileIssues: fileIssues, error: null });
+				this.setState({ valid: response.passes, fileIssues: fileIssues, error: null, loading: false });
 
 			// Test if the request is finished (4) but there was an error.
 			} else if ( 4 === readyState && text ) {
@@ -174,7 +174,7 @@
 					response = { passes: false, info: [], error: text };
 				}
 				// Update state.
-				this.setState({ valid: false, fileIssues: [], error: response.error });
+				this.setState({ valid: false, fileIssues: [], error: response.error, loading: false });
 			}
 		},
 
@@ -182,6 +182,8 @@
 		 * Upload a file through XMLHttpRequest
 		 */
 		uploadFiles: function ( files ) {
+			this.setState({ loading: true });
+
 			var formData = new FormData();
 
 			// Set each selected file to formData as an array
@@ -196,10 +198,14 @@
 		},
 
 		render: function() {
+
+			var loading = this.state.loading ? <p className="loading"><img src="assets/img/loading.gif" alt="Processing…"/></p> : '';
+
 			return (
 				<div className="tester">
 					<h1>Platform PHP Compatibility&nbsp;Tester</h1>
 					<CompatibilityUploader onFileUpload={this.uploadFiles} />
+					{ loading }
 					<CompatibilityResults valid={this.state.valid} fileIssues={this.state.fileIssues} error={this.state.error} />
 				</div>
 			);

@@ -12,6 +12,8 @@ body{background:#ecf3ec;}
 #compatibility-tester li:nth-child(odd){background:rgba(0,0,0,.02);}
 #compatibility-tester code{color:#161683;}
 #compatibility-tester .phpVersion{white-space:nowrap;}
+#compatibility-tester .loading{text-align:center}
+
 
 @media (max-width: 550px) {
 #compatibility-tester h1 {font-size:30px}
