@@ -1,4 +1,4 @@
-## Synopsis
+## PHP Compat API
 
 PHP Compat API creates an API to test PHP code compatibility against the PHP version that you configure. It uses the [PHP CompatInfo library](https://github.com/llaville/php-compat-info) to determine the results. There is also a simple React based UI to test your files from.
 
