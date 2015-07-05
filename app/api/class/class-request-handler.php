@@ -31,7 +31,7 @@ class RequestHandler {
 			'max_upload_size' => 1048576,
 		);
 
-		foreach ($defaults as $key => $value) {
+		foreach ( $defaults as $key => $value ) {
 			if ( isset( $options[ $key ] ) && ! empty( $options[ $key ] ) ) {
 				$this->$key = $options[ $key ];
 			} else {
@@ -66,34 +66,47 @@ class RequestHandler {
 			$this->responder->respond_error( 'Missing file upload.' );
 		}
 
-		// Get file from the request
-		$file_name = $this->get_test_file_from_request( $_FILES['file'] );
-		if ( false === $file_name ) {
-			$this->responder->respond_error( 'Invalid file upload.' );
-		}
+		$issues = array();
 
-		// Move to temporary directory.
-		$temp_file_name = tempnam( $this->temp_dir, 'wct');
-		move_uploaded_file( $file_name, $temp_file_name );
+		// Loop through POSTed files
+		for ( $i = 0; $i < count( $_FILES['file']['name'] ); $i++ ) {
 
-		// Parse and analyze file for metrics
-		$result = $this->analyzer->try_get_metrics( $temp_file_name );
+			$orig_filename = $_FILES['file']['name'][ $i ];
 
-		// Make sure the temp file gets deleted immediately
-		unlink( $temp_file_name );
-		
-		if ( false === $result ) {
-			$this->responder->respond_error( 'Unable to parse the file.', 500 );
-		}
+			// Get file from the request
+			$file_name = $this->get_test_file_from_request( $_FILES['file'], $i );
+			if ( false === $file_name ) {
+				$this->responder->respond_error( 'Invalid file upload ' . $orig_filename  . '.' );
+			}
 
-		// Get info on possible non-conforming issues
-		$result = $this->analyzer->try_get_issues( $this->php_version );
-		if ( false === $result ) {
-			$this->responder->respond_error( 'Unable to determine compatibility.', 500 );
+			// Move to temporary directory.
+			$temp_file_name = tempnam( $this->temp_dir, 'wct');
+			move_uploaded_file( $file_name, $temp_file_name );
+
+			// Parse and analyze file for metrics
+			$result = $this->analyzer->try_get_metrics( $temp_file_name );
+
+			// Make sure the temp file gets deleted immediately
+			unlink( $temp_file_name );
+
+			if ( false === $result ) {
+				$this->responder->respond_error( 'Unable to parse the file ' . $orig_filename . '.', 500 );
+			}
+
+			// Get info on possible non-conforming issues
+			$result = $this->analyzer->try_get_issues( $this->php_version );
+			if ( false === $result ) {
+				$this->responder->respond_error( 'Unable to determine compatibility of ' . $orig_filename  . '.', 500 );
+			}
+
+			// Store issues found by file
+			if ( count( $this->analyzer->issues ) > 0 ) {
+				$issues[] = array( 'file' => $orig_filename, 'issues' => $this->analyzer->issues );
+			}
 		}
 
 		// Respond in JSON with the issues found, if any.
-		$this->responder->respond_with_results( $this->analyzer->issues );
+		$this->responder->respond_with_results( $issues );
 
 	}
 
@@ -116,32 +129,33 @@ class RequestHandler {
 
 	/**
 	 * Description
-	 * @param array $file A file descriptor from $_FILES.
+	 *
+	 * @param array $files A file descriptor from $_FILES.
+	 * @param int   $i     Index of the file to get.
+	 *
 	 * @return bool|string False if the file was not accepted. Path to temp file if it was.
 	 */
-	protected function get_test_file_from_request( $file ) {
+	protected function get_test_file_from_request( $files, $i ) {
 
-		// Make sure the file is solid, there is only one of them
-		// and the size is not bigger than 1 Mb.
-		if ( ! is_array( $file )
-			|| ! isset( $file['error'] )
-			|| ! isset( $file['tmp_name'] )
-			|| is_array( $file['error'] )
-			|| UPLOAD_ERR_OK !== $file['error']
-			|| $this->max_upload_size < $file['size'] ) {
+		// Make sure the file is solid and the size is not bigger than the max.
+		if ( ! is_array( $files )
+			|| ! isset( $files['error'][ $i ] )
+			|| ! isset( $files['tmp_name'][ $i ] )
+			|| UPLOAD_ERR_OK !== $files['error'][ $i ]
+			|| $this->max_upload_size < $files['size'][ $i ] ) {
 			return false;
 		}
 
 		// Get the mime type of the file from the file system,
 		// since we cannot trust the info from the upload.
 		$file_info = new \finfo( FILEINFO_MIME_TYPE );
-		$mime_type = $file_info->file( $file['tmp_name'] );
+		$mime_type = $file_info->file( $files['tmp_name'][ $i ] );
 
 		// Test the mime type. 'text/html' is for PHP files that start with HTML.
 		if ( 'text/x-php' !== $mime_type && 'text/html' !== $mime_type ) {
 			return false;
 		}
 
-		return $file['tmp_name'];
+		return $files['tmp_name'][ $i ];
 	}
 }

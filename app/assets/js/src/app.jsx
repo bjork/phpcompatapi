@@ -11,112 +11,22 @@
 		handleUpload: function () {
 			var fileInput = this.refs.file.getDOMNode();
 			if ( fileInput.files.length > 0 ) {
-				var file = fileInput.files[0];
-				this.props.onFileUpload({ file: file });
+				var files = fileInput.files;
+				this.props.onFileUpload({ files: files });
 			}
 		},
 		render: function () {
 			return (
 				<div className="uploader">
 					<form className="uploaderForm" ref="form" encType="multipart/form-data">
-						<input type="file" accept="text/php" ref="file" onChange={this.handleUpload}/>
+						<input type="file" accept="text/php" ref="file" onChange={this.handleUpload} multiple/>
 					</form>
 				</div>
 			);
 		}
 	});
 
-	/**
-	 * CompatibilityIssue is an li element.
-	 */
-	var CompatibilityIssue = React.createClass({
-		render: function () {
-			return (
-				<li><span className="type">{this.props.type}</span> <code className="name">{this.props.name}</code> requires PHP <span className="phpVersion">{this.props.phpVersion}</span>.</li>
-			);
-		}
-	});
-
-	var CompatibilityResults = React.createClass({
-		render: function () {
-			// Do not render if the validity is not determined yet.
-			if ( null === this.props.valid ) {
-				return null;
-			}
-
-			// Create sub nodes for issues
-			var issueNodes = this.props.issues.map(function (issue) {
-				var id = issue.type + issue.name;
-				return (
-					<CompatibilityIssue key={id} type={issue.type} name={issue.name} phpVersion={issue.phpVersion} />
-				);
-			});
-
-			return (
-				<div className="results">
-					<p>The validation of the file <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>. {this.props.error}</p>
-
-					<div className="issues" style={{display: this.props.issues.length > 0 ? 'block' : 'none'}}>
-						<h2>Issues found</h2>
-						<ol>{issueNodes}</ol>
-					</div>
-				</div>
-			);
-		}
-	});
-
-	/**
-	 * The main component.
-	 */
-	var CompatibilityTester = React.createClass({
-		getInitialState: function () {
-			return { valid: null, issues: [], error: null };
-		},
-
-		/**
-		 * Handles Ajax response.
-		 */
-		onReadyStateChangeHandler: function ( event ) {
-			var status, text, readyState;
-
-			try {
-				readyState = event.target.readyState;
-				text       = event.target.responseText;
-				status     = event.target.status;
-			} catch( e ) {
-				return;
-			}
-
-			// Test if the request is finished (4) and succeeded.
-			if ( 4 === readyState && 200 === status && text ) {
-				var response = '';
-				try {
-					response = JSON.parse( text );
-				} catch ( err ) {
-					// The response was malformed. Create it manually.
-					response = { passes: false, info: [], error: text };
-				}
-
-				var issues = [];
-				if ( false === response.passes ) {
-					issues = this.transformIssues( response.info );
-				}
-
-				// Update state.
-				this.setState({ valid: response.passes, issues: issues, error: null });
-
-			// Test if the request is finished (4) but there was an error.
-			} else if ( 4 === readyState && text ) {
-				try {
-					var response = JSON.parse( text );
-				} catch ( err ) {
-					// The response was malformed. Create it manually.
-					response = { passes: false, info: [], error: text };
-				}
-				// Update state.
-				this.setState({ valid: false, issues: [], error: response.error });
-			}
-		},
+	var CompatibilityFileIssues = React.createClass({
 
 		/**
 		 * Transforms issues from the API to a more human readable form.
@@ -155,12 +65,129 @@
 			return issues;
 		},
 
+		render: function () {
+			this.props.issues = this.transformIssues( this.props.issues );
+
+			// Create sub nodes for file issues
+			var issueNodes = this.props.issues.map(function (issue) {
+
+				var id = issue.name;
+				return (
+					<CompatibilityIssue type={issue.type} name={issue.name} phpVersion={issue.phpVersion} />
+				);
+			});
+
+			return (
+				<div>
+				<h3>{this.props.fileName}</h3>
+				<ol>{issueNodes}</ol>
+				</div>
+			);
+		}
+	});
+
+	/**
+	 * CompatibilityIssue is an li element.
+	 */
+	var CompatibilityIssue = React.createClass({
+		render: function () {
+			return (
+				<li><span className="type">{this.props.type}</span> <code className="name">{this.props.name}</code> requires PHP <span className="phpVersion">{this.props.phpVersion}</span>.</li>
+			);
+		}
+	});
+
+	var CompatibilityResults = React.createClass({
+		render: function () {
+			// Do not render if the validity is not determined yet.
+			if ( null === this.props.valid ) {
+				return null;
+			}
+
+			// Create sub nodes for file issues
+			var issueFileNodes = this.props.fileIssues.map(function (issueFile) {
+				var id = issueFile.name;
+				return (
+					<CompatibilityFileIssues fileName={issueFile.file} issues={issueFile.issues} />
+				);
+			});
+
+			return (
+				<div className="results">
+					<p>The validation of the file <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>. {this.props.error}</p>
+
+					<div className="issues" style={{display: this.props.fileIssues.length > 0 ? 'block' : 'none'}}>
+						<h2>Issues found</h2>
+						{issueFileNodes}
+					</div>
+				</div>
+			);
+		}
+	});
+
+	/**
+	 * The main component.
+	 */
+	var CompatibilityTester = React.createClass({
+		getInitialState: function () {
+			return { valid: null, fileIssues: [], error: null };
+		},
+
+		/**
+		 * Handles Ajax response.
+		 */
+		onReadyStateChangeHandler: function ( event ) {
+			var status, text, readyState;
+
+			try {
+				readyState = event.target.readyState;
+				text       = event.target.responseText;
+				status     = event.target.status;
+			} catch( e ) {
+				return;
+			}
+
+			// Test if the request is finished (4) and succeeded.
+			if ( 4 === readyState && 200 === status && text ) {
+				var response = '';
+				try {
+					response = JSON.parse( text );
+				} catch ( err ) {
+					// The response was malformed. Create it manually.
+					response = { passes: false, info: [], error: text };
+				}
+
+				var fileIssues = [];
+				if ( false === response.passes ) {
+					fileIssues = response.info;
+				}
+
+				// Update state.
+				this.setState({ valid: response.passes, fileIssues: fileIssues, error: null });
+
+			// Test if the request is finished (4) but there was an error.
+			} else if ( 4 === readyState && text ) {
+				try {
+					var response = JSON.parse( text );
+				} catch ( err ) {
+					// The response was malformed. Create it manually.
+					response = { passes: false, info: [], error: text };
+				}
+				// Update state.
+				this.setState({ valid: false, fileIssues: [], error: response.error });
+			}
+		},
+
 		/**
 		 * Upload a file through XMLHttpRequest
 		 */
-		uploadFile: function ( file ) {
+		uploadFiles: function ( files ) {
 			var formData = new FormData();
-			formData.append('file', file.file);
+
+			// Set each selected file to formData as an array
+			for ( var i = 0; i < files.files.length; i++ ) {
+				formData.append( 'file[]', files.files[ i ] );
+			}
 
 			var xhr = new XMLHttpRequest();
 			xhr.addEventListener( 'readystatechange', this.onReadyStateChangeHandler, false );
@@ -172,8 +199,8 @@
 			return (
 				<div className="tester">
 					<h1>Platform PHP Compatibility&nbsp;Tester</h1>
-					<CompatibilityUploader onFileUpload={this.uploadFile} />
-					<CompatibilityResults valid={this.state.valid} issues={this.state.issues} error={this.state.error} />
+					<CompatibilityUploader onFileUpload={this.uploadFiles} />
+					<CompatibilityResults valid={this.state.valid} fileIssues={this.state.fileIssues} error={this.state.error} />
 				</div>
 			);
 		}

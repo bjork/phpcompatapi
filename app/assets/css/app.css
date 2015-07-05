@@ -6,6 +6,7 @@ body{background:#ecf3ec;}
 #compatibility-tester .failed{background: rgba(255, 0, 0, 0.3)}
 #compatibility-tester .results{text-align: left}
 #compatibility-tester h2{font-size:20px;margin-top:30px;margin-bottom:10px;text-transform: uppercase;font-weight: normal}
+#compatibility-tester h3{font-weight:normal;margin:1.3em 0 .7em}
 #compatibility-tester ol{margin:0;padding:0;list-style-position: inside; }
 #compatibility-tester li{margin-bottom:10px;padding:5px;}
 #compatibility-tester li:nth-child(odd){background:rgba(0,0,0,.02);}
