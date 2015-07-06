@@ -114,7 +114,7 @@
 
 			return (
 				React.createElement("div", {className: "results"}, 
-					React.createElement("p", null, "The validation of the file ", React.createElement("span", {className: "failed", style: {display: false === this.props.valid ? 'inline' : 'none'}}, "failed"), React.createElement("span", {className: "passed", style: {display: true === this.props.valid ? 'inline' : 'none'}}, "passed"), ". ", this.props.error), 
+					React.createElement("p", null, "The validation ", React.createElement("span", {className: "failed", style: {display: false === this.props.valid ? 'inline' : 'none'}}, "failed"), React.createElement("span", {className: "passed", style: {display: true === this.props.valid ? 'inline' : 'none'}}, "passed"), ". ", this.props.error), 
 
 					React.createElement("div", {className: "issues", style: {display: this.props.fileIssues.length > 0 ? 'block' : 'none'}}, 
 						React.createElement("h2", null, "Issues found"), 

@@ -114,7 +114,7 @@
 
 			return (
 				<div className="results">
-					<p>The validation of the file <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>. {this.props.error}</p>
+					<p>The validation <span className="failed" style={{display: false === this.props.valid ? 'inline' : 'none'}}>failed</span><span className="passed" style={{display: true === this.props.valid ? 'inline' : 'none'}}>passed</span>. {this.props.error}</p>
 
 					<div className="issues" style={{display: this.props.fileIssues.length > 0 ? 'block' : 'none'}}>
 						<h2>Issues found</h2>
