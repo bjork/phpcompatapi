@@ -28,6 +28,7 @@ class Analyzer {
 
 			// Run the analyzer.
 			$metrics = $api->run( $file_to_analyze, $analysers );
+
 			// Analyzer returns an Exception if the temp directory
 			// contains resources the current user has no access to.
 			if ( is_a( $metrics, 'Exception' ) ) {
@@ -66,9 +67,11 @@ class Analyzer {
 			$php_version_to_test_against
 		);
 
+		// If issues requiring a PHP version greater than specified are found,
+		// but the general level info says it's OK, they probably are nothing
+		// to worry about e.g. dealt with proper function_exists calls.
 		if ( $passes_requirements && count( $issues ) > 0 ) {
-			// A conflict was found in the metrics.
-			return false;
+			$issues = [];
 		}
 
 		$this->issues = $issues;
