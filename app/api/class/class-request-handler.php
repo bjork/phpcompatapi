@@ -68,6 +68,9 @@ class RequestHandler {
 
 		$issues = array();
 
+		// Stores whether all the files pass requirements
+		$passes = true;
+
 		// Loop through POSTed files
 		for ( $i = 0; $i < count( $_FILES['file']['name'] ); $i++ ) {
 
@@ -100,13 +103,14 @@ class RequestHandler {
 			}
 
 			// Store issues found by file
-			if ( count( $this->analyzer->issues ) > 0 ) {
+			if ( ! $this->analyzer->passes_requirements ) {
+				$passes = false;
 				$issues[] = array( 'file' => $orig_filename, 'issues' => $this->analyzer->issues );
 			}
 		}
 
 		// Respond in JSON with the issues found, if any.
-		$this->responder->respond_with_results( $issues );
+		$this->responder->respond_with_results( $passes, $issues );
 
 	}
 

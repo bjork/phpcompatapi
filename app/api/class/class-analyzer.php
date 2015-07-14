@@ -8,6 +8,8 @@ class Analyzer {
 
 	public $issues = array();
 
+	public $passes_requirements = false;
+
 	/**
 	 * Use PHP CompatInfo to get metrics of code.
 	 * @param string $file_to_analyze PHP file contents as a string
@@ -60,7 +62,8 @@ class Analyzer {
 		}
 
 		$versions = $this->metrics[ $analyzer_full_name ]['versions'];
-		$passes_requirements = $this->passes( $versions, $php_version_to_test_against );
+
+		$this->passes_requirements = $this->passes( $versions, $php_version_to_test_against );
 
 		$issues = $this->get_info_for_non_passing_properties(
 			$this->metrics[ $analyzer_full_name ],
@@ -70,7 +73,7 @@ class Analyzer {
 		// If issues requiring a PHP version greater than specified are found,
 		// but the general level info says it's OK, they probably are nothing
 		// to worry about e.g. dealt with proper function_exists calls.
-		if ( $passes_requirements && count( $issues ) > 0 ) {
+		if ( $this->passes_requirements && count( $issues ) > 0 ) {
 			$issues = [];
 		}
 

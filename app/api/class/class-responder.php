@@ -4,8 +4,8 @@ namespace WCT;
 
 class Responder {
 
-	public function respond_with_results( $issues ) {
-		$results = (object) array( 'passes' => true );
+	public function respond_with_results( $passes, $issues ) {
+		$results = (object) array( 'passes' => $passes );
 
 		if ( count( $issues ) > 0 ) {
 			$results->passes = false;
