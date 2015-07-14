@@ -45,13 +45,14 @@ class Analyzer {
 			// Analyzer returns an Exception if the temp directory
 			// contains resources the current user has no access to.
 			if ( is_a( $metrics, 'Exception' ) ) {
+				error_log( 'Analysis failed: ' . $metrics );
 				return false;
 			}
 
 			$this->metrics = $metrics;
 
 		} catch ( Exception $e ) {
-
+			error_log( 'Analysis failed: ' . $e );
 			return false;
 		}
 
