@@ -1,0 +1,14 @@
+{
+  "source-providers": [
+  ],
+  "plugins": [
+  ],
+  "analysers": [
+    {
+      "name":  "ExtendedCompatibilityAnalyser",
+      "class": "WCT\\ExtendedCompatibilityAnalyser"
+    }
+  ],
+  "services": [
+  ]
+}

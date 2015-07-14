@@ -12,6 +12,9 @@ if ( version_compare ( phpversion(), '5.4.0', '<') ) {
 	exit( 'Unsupported PHP version. 5.4.0 or above required.' );
 }
 
+require_once( '../vendor/autoload.php' );
+
+require_once( 'class/class-extendedcompatibilityanalyzer.php' );
 require_once( 'class/class-responder.php' );
 require_once( 'class/class-analyzer.php' );
 require_once( 'class/class-request-handler.php' );

@@ -2,6 +2,8 @@
 
 namespace WCT;
 
+use \Bartlett\Reflect\Client;
+
 class Analyzer {
 
 	public $metrics = array();
@@ -10,26 +12,35 @@ class Analyzer {
 
 	public $passes_requirements = false;
 
+	// Perform request by default with WCT\ExtendedCompatibilityAnalyser.
+	public $analysers = array( 'extendedcompatibility' );
+
+	protected $api;
+
+	public function __construct() {
+
+		// Set up environment variables for PHP CompatInfo to read configuration.
+		$app_root_dir = dirname( dirname( dirname( __DIR__ ) ) );
+		putenv( 'BARTLETT_SCAN_DIR=' . $app_root_dir );
+		putenv( 'BARTLETTRC=php-compatinfo-conf.json' );
+
+		$client = new Client();
+
+		// Request for Bartlett\Reflect\Api\Analyser.
+		$this->api = $client->api( 'analyser' );
+	}
+
 	/**
 	 * Use PHP CompatInfo to get metrics of code.
 	 * @param string $file_to_analyze PHP file contents as a string
 	 * @return bool|array False on error, result array otherwise.
 	 */
 	public function try_get_metrics( $file_to_analyze ) {
-		require_once '../vendor/autoload.php';
 
 		try {
 
-			$client = new \Bartlett\Reflect\Client();
-
-			// Request for a Bartlett\Reflect\Api\Analyser.
-			$api = $client->api( 'analyser' );
-
-			// Perform request, on a data source with default analyser.
-			$analysers = array( 'compatibility' );
-
 			// Run the analyzer.
-			$metrics = $api->run( $file_to_analyze, $analysers );
+			$metrics = $this->api->run( $file_to_analyze, $this->analysers );
 
 			// Analyzer returns an Exception if the temp directory
 			// contains resources the current user has no access to.
@@ -54,7 +65,7 @@ class Analyzer {
 	 * @return bool|array Filtered results that only contain issues. False on failure. Empty return array is a pass.
 	 */
 	public function try_get_issues( $php_version_to_test_against ) {
-		$analyzer_full_name = 'Bartlett\CompatInfo\Analyser\CompatibilityAnalyser';
+		$analyzer_full_name = 'WCT\ExtendedCompatibilityAnalyser';
 
 		if ( ! isset( $this->metrics[ $analyzer_full_name ],
 			$this->metrics[ $analyzer_full_name ]['versions'] ) ) {
