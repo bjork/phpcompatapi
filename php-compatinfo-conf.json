@@ -6,7 +6,7 @@
   "analysers": [
     {
       "name":  "ExtendedCompatibilityAnalyser",
-      "class": "WCT\\ExtendedCompatibilityAnalyser"
+      "class": "ExtendedCompatibilityAnalyser"
     }
   ],
   "services": [
