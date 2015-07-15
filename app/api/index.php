@@ -19,8 +19,6 @@ function run() {
 	// Stores whether all the files pass requirements.
 	$passes = true;
 
-	$api = get_api();
-
 	// Loop through POSTed files
 	for ( $i = 0; $i < count( $_FILES['file']['name'] ); $i++ ) {
 
@@ -37,7 +35,7 @@ function run() {
 		move_uploaded_file( $file_name, $temp_file_name );
 
 		// Parse and analyze file for metrics
-		$result = try_get_metrics( $temp_file_name, $api );
+		$result = try_get_metrics( $temp_file_name );
 
 		// Make sure the temp file gets deleted immediately
 		unlink( $temp_file_name );
@@ -121,11 +119,13 @@ function get_test_file_from_request( $files, $i ) {
 }
 
 /**
- * Get API object to use for analysis.
+ * Use PHP CompatInfo to get metrics of code.
  * 
- * @return Bartlett\Reflect\Api\Analyser PHP CompatInfo API
+ * @param string $file_to_analyze PHP file contents as a string.
+ * 
+ * @return bool|array False on error, result array otherwise.
  */
-function get_api() {
+function try_get_metrics( $file_to_analyze ) {
 	// Set up environment variables for PHP CompatInfo to read configuration.
 	$app_root_dir = dirname( dirname( __DIR__ ) );
 	putenv( 'BARTLETT_SCAN_DIR=' . $app_root_dir );
@@ -134,18 +134,8 @@ function get_api() {
 	$client = new Bartlett\Reflect\Client();
 
 	// Request for Bartlett\Reflect\Api\Analyser.
-	return $client->api( 'analyser' );
-}
+	$api = $client->api( 'analyser' );
 
-/**
- * Use PHP CompatInfo to get metrics of code.
- * 
- * @param string $file_to_analyze PHP file contents as a string.
- * @param Bartlett\Reflect\Api\Analyser $api PHP CompatInfo API to use.
- * 
- * @return bool|array False on error, result array otherwise.
- */
-function try_get_metrics( $file_to_analyze, $api ) {
 	$analysers = array( 'extendedcompatibility' );
 
 	try {
@@ -169,10 +159,11 @@ function try_get_metrics( $file_to_analyze, $api ) {
 /**
  * Test if PHP CompatInfo metrics match required PHP version.
  * 
- * @param array $metrics PHP CompatInfo metrics
+ * @param array  $metrics PHP CompatInfo metrics
  * @param string $php_version_to_test_against PHP version string the code needs to match.
+ * @param bool   $passes_requirements Weather the requirements are passed. There might be no reported issues but still not passing.
  * 
- * @return bool|array Filtered results that only contain issues. False on failure. Empty return array is a pass.
+ * @return bool|array Filtered results that only contain issues. False on failure.
  */
 function try_get_issues( $metrics, $php_version_to_test_against, &$passes_requirements ) {
 	$analyzer_full_name = 'ExtendedCompatibilityAnalyser';
