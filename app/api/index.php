@@ -45,7 +45,7 @@ function run() {
 		}
 
 		// Get info on possible non-conforming issues
-		$issues = try_get_issues( $result, WCT_PHP_VERSION, $passes_requirements );
+		$issues = try_get_issues( $result, $passes_requirements );
 		if ( false === $issues ) {
 			respond_error( 'Unable to determine compatibility of ' . $orig_filename  . '.', 500 );
 		}
@@ -160,12 +160,11 @@ function try_get_metrics( $file_to_analyze ) {
  * Test if PHP CompatInfo metrics match required PHP version.
  * 
  * @param array  $metrics PHP CompatInfo metrics
- * @param string $php_version_to_test_against PHP version string the code needs to match.
  * @param bool   $passes_requirements Weather the requirements are passed. There might be no reported issues but still not passing.
  * 
  * @return bool|array Filtered results that only contain issues. False on failure.
  */
-function try_get_issues( $metrics, $php_version_to_test_against, &$passes_requirements ) {
+function try_get_issues( $metrics, &$passes_requirements ) {
 	$analyzer_full_name = 'ExtendedCompatibilityAnalyser';
 
 	if ( ! isset( $metrics[ $analyzer_full_name ],
@@ -175,12 +174,9 @@ function try_get_issues( $metrics, $php_version_to_test_against, &$passes_requir
 
 	$versions = $metrics[ $analyzer_full_name ]['versions'];
 
-	$passes_requirements = passes( $versions, $php_version_to_test_against );
+	$passes_requirements = passes( $versions );
 
-	$issues = get_info_for_non_passing_properties(
-		$metrics[ $analyzer_full_name ],
-		$php_version_to_test_against
-	);
+	$issues = get_info_for_non_passing_properties( $metrics[ $analyzer_full_name ] );
 
 	// If issues requiring a PHP version greater than specified are found,
 	// but the general level info says it's OK, they probably are nothing
@@ -196,11 +192,10 @@ function try_get_issues( $metrics, $php_version_to_test_against, &$passes_requir
  * Filtered results to only contain issues.
  * 
  * @param array $metrics PHP CompatInfo metrics
- * @param string $php_version_to_test_against PHP version string the code needs to match.
  * 
  * @return array Filtered results that only contain issues.
  */
-function get_info_for_non_passing_properties( $metrics, $php_version_to_test_against ) {
+function get_info_for_non_passing_properties( $metrics ) {
 	$issues = array();
 
 	foreach ( $metrics as $metric => $properties ) {
@@ -213,7 +208,7 @@ function get_info_for_non_passing_properties( $metrics, $php_version_to_test_aga
 
 		// Gather property data that does not meet the requirements
 		foreach ( $properties as $property_name => $property_data ) {
-			if ( ! passes( $property_data, $php_version_to_test_against ) ) {
+			if ( ! passes( $property_data ) ) {
 				if ( ! isset( $issues[ $metric ] ) ) {
 					$issues[ $metric ] = array();
 				}
@@ -248,11 +243,10 @@ function array_with_only_php_min_max( $array ) {
  * Test if a property of PHP CompatInfo results array matches required PHP version
  * 
  * @param array $property PHP CompatInfo property
- * @param string $php_version_to_test_against PHP version string the code needs to match.
  * 
  * @return bool If the property matches the PHP version.
  */
-function passes( $property, $php_version_to_test_against ) {
+function passes( $property ) {
 	if ( ! is_array( $property ) ) {
 		return true;
 	}
@@ -261,12 +255,12 @@ function passes( $property, $php_version_to_test_against ) {
 
 	if ( isset( $property['php.min'] ) && $property['php.min'] ) {
 		$min_php = $property['php.min'];
-		$passes_requirements = version_compare( $php_version_to_test_against, $min_php, '>=' );
+		$passes_requirements = version_compare( WCT_PHP_VERSION, $min_php, '>=' );
 	}
 
 	if ( $passes_requirements && isset( $property['php.max'] ) && $property['php.max'] ) {
 		$max_php = $property['php.max'];
-		$passes_requirements = version_compare( $php_version_to_test_against, $max_php, '<=' );
+		$passes_requirements = version_compare( WCT_PHP_VERSION, $max_php, '<=' );
 	}
 
 	return $passes_requirements;
