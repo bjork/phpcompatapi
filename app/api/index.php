@@ -247,10 +247,6 @@ function array_with_only_php_min_max( $array ) {
  * @return bool If the property matches the PHP version.
  */
 function passes( $property ) {
-	if ( ! is_array( $property ) ) {
-		return true;
-	}
-
 	$passes_requirements = true;
 
 	if ( isset( $property['php.min'] ) && $property['php.min'] ) {
