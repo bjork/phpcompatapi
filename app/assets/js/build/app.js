@@ -50,12 +50,12 @@
 
 					// Create a human readable version requirement string
 					var version = '';
-					if ( details.php_min && details.php_max ) {
-						version = details.php_min + '–' + details.php_max;
-					} else if ( details.php_min ) {
-						version = '>= ' + details.php_min;
-					} else if ( details.php_max ) {
-						version = '<= ' + details.php_max;
+					if ( details['php.min'] && details['php.max'] ) {
+						version = details['php.min'] + '–' + details['php.max'];
+					} else if ( details['php.min'] ) {
+						version = '>= ' + details['php.min'];
+					} else if ( details['php.max'] ) {
+						version = '<= ' + details['php.max'];
 					}
 
 					issues.push({ type: type_singular, name: property, phpVersion: version });

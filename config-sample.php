@@ -14,5 +14,5 @@ define( 'WCT_ROOT_PATH', '/' );
 // uses sys_get_temp_dir()
 // define( 'WCT_TEMP_DIR', '/path/to/temp/dir' );
 
-// Define upload size limit in bytes. Defaults to one megabyte.
+// Define single file upload size limit in bytes. Defaults to one megabyte.
 // define( 'WCT_MAX_UPLOAD_SIZE', 1048576 );

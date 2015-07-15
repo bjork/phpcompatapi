@@ -1,7 +1,5 @@
 <?php
 
-namespace WCT;
-
 use Bartlett\CompatInfo\Analyser\CompatibilityAnalyser;
 use PhpParser\Node;
 
