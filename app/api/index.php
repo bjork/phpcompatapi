@@ -82,6 +82,12 @@ function validate_request() {
 	if ( ! isset( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
 		respond_error( 'Missing file upload.' );
 	}
+
+	// Only allow max_file_uploads-1 files to be uploaded
+	// Without this, those exceeding files would be silently ignored.
+	if ( isset( $_FILES['file']['name'][ ini_get( 'max_file_uploads' ) - 1 ] ) ) {
+		respond_error( 'Maximum number of files (' . ( ini_get( 'max_file_uploads' ) - 1 ) . ') exceeded.' );
+	}
 }
 
 /**
