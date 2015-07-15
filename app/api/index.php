@@ -25,14 +25,10 @@ function run() {
 		$orig_filename = $_FILES['file']['name'][ $i ];
 
 		// Get file from the request
-		$file_name = get_test_file_from_request( $_FILES['file'], $i );
-		if ( false === $file_name ) {
+		$temp_file_name = get_test_file_from_request( $_FILES['file'], $i );
+		if ( false === $temp_file_name ) {
 			respond_error( 'Invalid file upload ' . $orig_filename  . '.' );
 		}
-
-		// Move to temporary directory.
-		$temp_file_name = tempnam( WCT_TEMP_DIR, 'wct' );
-		move_uploaded_file( $file_name, $temp_file_name );
 
 		// Parse and analyze file for metrics
 		$result = try_get_metrics( $temp_file_name );
@@ -115,7 +111,11 @@ function get_test_file_from_request( $files, $i ) {
 		return false;
 	}
 
-	return $files['tmp_name'][ $i ];
+	// Move to temporary directory.
+	$temp_file_name = tempnam( WCT_TEMP_DIR, 'wct' );
+	move_uploaded_file( $files['tmp_name'][ $i ], $temp_file_name );
+
+	return $temp_file_name;
 }
 
 /**
